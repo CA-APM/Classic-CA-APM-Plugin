@@ -25,9 +25,27 @@ export interface APMDataQuery extends DataQuery {
 }
 
 export const defaultQuery: Partial<APMDataQuery> = {
-  metricColumns: {"agent_host":"agent_host", "agent_process":"agent_process", "agent_name":"agent_name", "metric_path":"metric_path", "metric_attribute":"metric_attribute"},
-  group: {"agent_host":"agent_host", "agent_process":"agent_process", "agent_name":"agent_name", "metric_path":"metric_path", "metric_attribute":"metric_attribute"},
-  where: [
+
+  metricColumns: [
+    { label: 'source_name', value: 'source_name' },
+    { label: 'agent_host', value: 'agent_host' },
+    { label: 'agent_process', value: 'agent_process' },
+    { label: 'agent_name', value: 'agent_name' },
+    { label: 'domain_name', value: 'domain_name' },
+    { label: 'metric_path', value: 'metric_path' },
+    { label: 'metric_attribute', value: 'metric_attribute' },
+  ],
+  group:  [
+    { label: 'source_name', value: 'source_name' },
+    { label: 'agent_host', value: 'agent_host' },
+    { label: 'agent_process', value: 'agent_process' },
+    { label: 'agent_name', value: 'agent_name' },
+    { label: 'domain_name', value: 'domain_name' },
+    { label: 'metric_path', value: 'metric_path' },
+    { label: 'metric_attribute', value: 'metric_attribute' },
+  ],
+    
+   where: [
     {
       1: null,
       2: null,
@@ -35,7 +53,7 @@ export const defaultQuery: Partial<APMDataQuery> = {
       4: null,
     },
   ],
-  select: {"*":"*"},
+  select: [{label: "*", value: ".*"}],
   table: "metric_data",
   format: 'time_series',
   rawQuery: true,
