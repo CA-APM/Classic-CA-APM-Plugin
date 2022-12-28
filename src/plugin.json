@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "caapm-grafana-plugin",
+  "id": "broadcom-caapm-grafana-plugin",
+  "metrics": true,
+  "info": {
+    "description": "CA APM Classic Grafana Plugin",
+    "author": {
+      "name": "Surendhar Thallapelly",
+      "url": "https://support.broadcom.com/"
+    },
+    "keywords": [
+      "CA APM v10.8",
+      "CA APM v10.7"
+    ],
+    "logos": {
+      "small": "img/Broadcom_Pulse_Logo.svg",
+      "large": "img/Broadcom_Pulse_Logo.svg"
+    },
+    "links": [
+      {
+        "name": "Documentation",
+        "url": "AIOps_Metrics_Datasource"
+      },
+      {
+        "name": "MIT License",
+        "url": ""
+      }
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "routes": [
+   {
+      "path": "broadcomdxapm",
+      "method": "*",
+      "url": "{{.JsonData.url}}",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Bearer {{.JsonData.apiKey}}"
+        }
+      ]
+    }
+  ],
+  "dependencies": {
+    "grafanaDependency": ">=7.0.0",
+    "plugins": []
+  }
+}
