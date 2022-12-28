@@ -40,7 +40,7 @@ export default class QueryModel {
         selectSection += ', ';
       }
        
-        selectSection += ''+unwrap(part).value;
+        selectSection += ''+part;
       
     }
 
@@ -87,7 +87,7 @@ export default class QueryModel {
         groupSection += ', ';
       }
       
-        groupSection += ''+unwrap(part).value;
+        groupSection += ''+part;
       
     }
   
