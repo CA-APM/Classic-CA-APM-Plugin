@@ -151,23 +151,27 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
       }
     });
 
-    const seriesObj = {
-      target: '',
-      datapoints: [],
-    };
     result.rows.map((row) => {
       let seriesName = this.getSeriesName(metricFullPath, row);
       let seriesObjdef = seriesList.find((i) => i.target === seriesName);
       if (seriesObjdef === undefined) {
-        seriesObj.target = seriesName;
+        // must create a new object
+        let seriesObj = { target: seriesName, datapoints: [] };
+        // console.log(
+        //   'seriesName: ' + seriesName + ' not found, adding ' + row[metricFullPath[7]] + ', ' + row[metricFullPath[8]]
+        // );
 
         seriesObj.datapoints.push([row[metricFullPath[7]], row[metricFullPath[8]]]);
         seriesList.push(seriesObj);
       } else {
+        // console.log(
+        //   'seriesName: ' + seriesName + ' found, adding ' + row[metricFullPath[7]] + ', ' + row[metricFullPath[8]]
+        // );
         seriesObjdef.datapoints.push([row[metricFullPath[7]], row[metricFullPath[8]]]);
-        seriesList.push(seriesObjdef);
       }
     });
+
+    // console.log(seriesList);
 
     return seriesList;
   }
