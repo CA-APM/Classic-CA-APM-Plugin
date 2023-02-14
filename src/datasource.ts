@@ -116,6 +116,7 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
       8: number | null;
     } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
 
+    let is_agg_set = 0;
     result.columns.map((column, j) => {
       switch (column.name) {
         case 'agent_host':
@@ -138,6 +139,17 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
           break;
         case 'agg_value':
           metricFullPath[7] = j;
+          is_agg_set = 1;
+          break;
+        case 'max_value':
+          if (!is_agg_set) {
+            metricFullPath[7] = j;
+          }
+          break;
+        case 'min_value':
+          if (!is_agg_set) {
+            metricFullPath[7] = j;
+          }
           break;
         case 'ts':
           metricFullPath[8] = j;
