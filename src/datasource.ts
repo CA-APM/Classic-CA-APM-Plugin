@@ -118,6 +118,7 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
 
     let is_agg_set = 0;
     result.columns.map((column, j) => {
+      //console.log('column[' + j + '].name = ' + column.name);
       switch (column.name) {
         case 'agent_host':
           metricFullPath[2] = j;
@@ -194,17 +195,19 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
     for (let i = 1; i <= 5; i++) {
       if (metricFullPath[i] !== undefined && metricFullPath[i] != null) {
         if (seriesName.length > 0) {
-          if (i === 6) {
+          seriesName += '|' + row[metricFullPath[i]];
+          /* if (i === 6) {
             seriesName += ':' + row[i];
             // put domain_name (index 4) first
           } else if (i === 4) {
             seriesName = row[i] + '|' + seriesName;
           } else {
             seriesName += '|' + row[i];
-          }
+          } */
         } else {
-          seriesName = '' + row[i];
+          seriesName = '' + row[metricFullPath[i]];
         }
+        //console.log('metricFullPath[' + i '] = ' + metricFullPath[i] + ', seriesName: ' + seriesName);
       }
     }
     return seriesName;
