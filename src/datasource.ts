@@ -116,7 +116,9 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
       8: number | null;
     } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
 
+    let is_agg_set = 0;
     result.columns.map((column, j) => {
+      //console.log('column[' + j + '].name = ' + column.name);
       switch (column.name) {
         case 'agent_host':
           metricFullPath[2] = j;
@@ -138,6 +140,17 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
           break;
         case 'agg_value':
           metricFullPath[7] = j;
+          is_agg_set = 1;
+          break;
+        case 'max_value':
+          if (!is_agg_set) {
+            metricFullPath[7] = j;
+          }
+          break;
+        case 'min_value':
+          if (!is_agg_set) {
+            metricFullPath[7] = j;
+          }
           break;
         case 'ts':
           metricFullPath[8] = j;
@@ -182,17 +195,19 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
     for (let i = 1; i <= 5; i++) {
       if (metricFullPath[i] !== undefined && metricFullPath[i] != null) {
         if (seriesName.length > 0) {
-          if (i === 6) {
+          seriesName += '|' + row[metricFullPath[i]];
+          /* if (i === 6) {
             seriesName += ':' + row[i];
             // put domain_name (index 4) first
           } else if (i === 4) {
             seriesName = row[i] + '|' + seriesName;
           } else {
             seriesName += '|' + row[i];
-          }
+          } */
         } else {
-          seriesName = '' + row[i];
+          seriesName = '' + row[metricFullPath[i]];
         }
+        //console.log('metricFullPath[' + i '] = ' + metricFullPath[i] + ', seriesName: ' + seriesName);
       }
     }
     return seriesName;
