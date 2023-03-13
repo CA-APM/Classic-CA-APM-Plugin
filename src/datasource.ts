@@ -7,7 +7,7 @@ import {
   LoadingState,
 } from '@grafana/data';
 import { DXAPMDataSourceOptions, APMDataQuery } from './types';
-import { getDataSourceSrv, getBackendSrv, BackendSrvRequest } from '@grafana/runtime';
+import { getDataSourceSrv, getBackendSrv, BackendSrvRequest, getTemplateSrv } from '@grafana/runtime';
 //import { isNull } from 'lodash';
 
 export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptions> {
@@ -38,6 +38,9 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
         return [];
       }
       let target = _.cloneDeep(t);
+      //console.log('before replace: ' + target.rawSql);
+      target.rawSql = getTemplateSrv().replace(target.rawSql, options.scopedVars, 'csv');
+      //console.log('after replace:  ' + target.rawSql);
       return this.queryTable(target, from, to, frequency);
     });
 
