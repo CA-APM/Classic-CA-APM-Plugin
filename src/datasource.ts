@@ -72,6 +72,8 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
         let frame = this.mapResponseToFrame(response.data, target);
         //console.log(frame);
         frame = this.mapFields(frame, mapping.mapping);
+        frame = this.mapTopN(frame, mapping.top);
+        console.log(frame);
         return frame;
       })
       .catch((error) => {
@@ -237,9 +239,9 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
 
   getFieldMapping(queryPayload: any): any {
     let sqlPayload = queryPayload.substring(10);
+    let mapping = [];
 
     let match = sqlPayload.match(/\w+ as \w+/gi);
-    let mapping = [];
     if (match) {
       console.log('found ' + match.length + ' matches: ' + match);
       for (let m in match) {
@@ -253,12 +255,21 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
         // console.log(sqlPayload);
       }
     }
-    let mappedPayload = `{"query":"${sqlPayload}`;
-    // console.log(mappedPayload);
 
+    let top = 0;
+    match = sqlPayload.match(/ top \d+/i);
+    if (match) {
+      sqlPayload = sqlPayload.replace(match[0], '');
+      top = Number(match[0].substring(5));
+      console.log('querying top ' + top);
+    }
+
+    const mappedPayload = `{"query":"${sqlPayload}`;
+    // console.log(mappedPayload);
     const result = {
       payload: mappedPayload,
       mapping: mapping,
+      top: top,
     };
 
     return result;
@@ -275,6 +286,40 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
       }
     }
     // console.log(frame);
+    return frame;
+  }
+
+  mapTopN(frame, topn): any {
+    if (topn > 0 && frame.length > topn) {
+      // get all values
+      let value = [];
+      for (let i = 0; i < frame.length; i++) {
+        // use last value to compare
+        value[i] = frame[i].datapoints[frame[i].datapoints.length - 1][0];
+      }
+      //console.log('values = ' + value);
+      // sort values high to low
+      value.sort(function (a, b) {
+        return b - a;
+      });
+      //console.log('sorted values = ' + value);
+
+      // find n highest values
+      let newframe = [];
+      for (let j = 0; j < topn; j++) {
+        const val = value[j];
+        for (let i = 0; i < frame.length; i++) {
+          if (val === frame[i].datapoints[frame[i].datapoints.length - 1][0]) {
+            newframe[j] = frame[i];
+            // keep searching if we have multiple same values
+            if (0 === j || value[j - 1] > value[j]) {
+              break;
+            }
+          }
+        }
+      }
+      return newframe;
+    }
     return frame;
   }
 
