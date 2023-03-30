@@ -62,13 +62,17 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
     };
     let queryPayload = this.getQueryPayload(target, from, to, frequency);
     console.log(queryPayload);
-    requestPayload.data = queryPayload;
+    let mapping = this.getFieldMapping(queryPayload);
+    requestPayload.data = mapping.payload;
     return getBackendSrv()
       .datasourceRequest(requestPayload)
       .then((response) => {
         console.log(response);
-        console.log(response.data);
-        return this.mapResponseToFrame(response.data, target);
+        //console.log(response.data);
+        let frame = this.mapResponseToFrame(response.data, target);
+        //console.log(frame);
+        frame = this.mapFields(frame, mapping.mapping);
+        return frame;
       })
       .catch((error) => {
         console.error('table query error: ', error);
@@ -229,6 +233,49 @@ export class DataSource extends DataSourceApi<APMDataQuery, DXAPMDataSourceOptio
     }
     let queryPayload = `{"query":"${sqlPayload}"}`;
     return queryPayload;
+  }
+
+  getFieldMapping(queryPayload: any): any {
+    let sqlPayload = queryPayload.substring(10);
+
+    let match = sqlPayload.match(/\w+ as \w+/gi);
+    let mapping = [];
+    if (match) {
+      console.log('found ' + match.length + ' matches: ' + match);
+      for (let m in match) {
+        let pos = match[m].search(/ as /i);
+        // console.log('pos = ' + pos);
+        let from = match[m].substring(0, pos);
+        let to = match[m].substring(pos + 4);
+        // console.log('mapping from ' + from + ' to ' + to);
+        sqlPayload = sqlPayload.replace(match[m], from);
+        mapping[from] = to;
+        // console.log(sqlPayload);
+      }
+    }
+    let mappedPayload = `{"query":"${sqlPayload}`;
+    // console.log(mappedPayload);
+
+    const result = {
+      payload: mappedPayload,
+      mapping: mapping,
+    };
+
+    return result;
+  }
+
+  mapFields(frame, mapping): any {
+    for (let from in mapping) {
+      // console.log('mapping from ' + from + ' to ' + mapping[from]);
+      for (let c in frame.columns) {
+        if (frame.columns[c].text === from) {
+          frame.columns[c].text = mapping[from];
+          console.log('mapped text from ' + from + ' to ' + mapping[from]);
+        }
+      }
+    }
+    // console.log(frame);
+    return frame;
   }
 
   getFrequency(dataRange: any): any {
