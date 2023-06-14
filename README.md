@@ -25,7 +25,7 @@ introscope.public.restapi.maxConcurrentRequestsClamp=20
 
 
 ## License
-[Eclipse Public License - v 1.0](LICENSE)
+[Apache License v 2.0](LICENSE)
 
 # Installation Instructions
 
